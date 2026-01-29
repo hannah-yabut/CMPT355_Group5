@@ -65,6 +65,27 @@ return:
 def S_closed():
     return 0 
 
+#currently expanding node
+'''
+Description: implementation for the current node, i dont really know if it fits any of the current so paste it into the appropriate spot (im sorry)
+parameters: heap
+return: lowest cost node in the frontier(hashtable)
+'''
+def curr(heap):
+    curr_node = heapq.heappop(heap)
+    return curr_node
+
+#frontier
+'''
+Description: store state (nodes) into frontier based on evaluation function and heuristic
+parameters: state heap, hashtable
+return: none
+'''
+def into_frontier(SearchNode, heap, hashtable):
+    heapq.heappush(heap, (SearchNode.f, SearchNode.h, SearchNode))
+    #hashtable needs to be implemented
+    pass
+
 '''
 description: for the application of the moves 
 paramaters: 
