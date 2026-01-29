@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import AB
+
+if __name__ == "__main__":
+    AB.main()

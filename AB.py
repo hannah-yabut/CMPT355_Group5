@@ -39,18 +39,23 @@ paramaters:
 return: State(large, small) , using the State class from moves.py 
 '''
 def initial_state_input(n): 
-    large = list(map(int, input().split())) # take in the 1st terminal input as a list
-    small = list(map(int, input().split())) # take in the 2nd terminal input as a list
-    
-    if len(large) != n or len(small) != n:
+    line1 = sys.stdin.readline() # changed to stdin for redirected input as shown in lab 
+    line2 = sys.stdin.readline()
+
+    if not line1 or not line2:
+        raise ValueError("Expected two lines of input for large and small disk states.")
+
+    large = list(map(int, line1.split())) # list for large disk configuration 
+    small = list(map(int, line2.split())) # list for small disk configuration 
+
+    if len(large) != n or len(small) != n: # error checking 
         raise ValueError(f"Expected {n} integers per line.")
 
     if 0 not in small:
         raise ValueError("Small disks must contain a 0.")
 
-    return State(large, small) # saved as a Tuple based on the class State
- 
-
+    return State(large, small) # saved as a tuple as in the class State 
+  
 # visited states 
 '''
 description: hash table/ heap implementation of visited nodes 
@@ -106,7 +111,7 @@ def main():
     state = initial_state_input(n)
 
     print("\nState read from input:")
-    print(state)            # uses __str__
+    print(state) # uses __str__
     print("\nFull debug view:")
     print(state.debug_str())
 
