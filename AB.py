@@ -82,14 +82,44 @@ return:
 def f():
     return 0
 
-# heuristic funtion 
+# heuristic funtion
 '''
-description: 
-paramaters: 
-return: 
+description:
+Counts value changes in the circular small disk configuration,
+starting after the blank (zero). Not adding after the final copy of a given number is observed.
+
+paramaters:
+- state : State object from moves.py
+
+return:
+- heuristic value (int)
 '''
-def h():
-    return 0 
+def h(state):
+    obs = state.small
+    T = len(obs)
+
+    n = max(obs)                 # number of disks per value
+    blank_pos = obs.index(0)     # anchor at the blank
+
+    prev_val = obs[(blank_pos + 1) % T] 
+
+    seen = {v: 0 for v in range(n + 1)} # keeps track of how many of each number is seen
+    seen[prev_val] += 1
+
+    h_val = 0
+
+    for step in range(2, T + 1):
+        cur_val = obs[(blank_pos + step) % T]
+        # If theres a new number, and we know there should still be more of the previous number, increase h_val
+        if cur_val != prev_val:
+            if prev_val != 0 and seen[prev_val] < n:
+                h_val += 1
+
+        seen[cur_val] += 1
+        prev_val = cur_val
+
+    return h_val
+
 
 # cost function 
 '''
