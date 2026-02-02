@@ -70,8 +70,29 @@ description: for the application of the moves
 paramaters: 
 return: 
 '''
-def apply_move() :
-    return 0 
+def apply_move(state, side, k) :
+    
+    small_state = list(state.small)
+    n = len(small_state)
+    
+    zero_index = small_state.index(0)
+
+    if side == "R":
+        destination_index = (zero_index + k) % n
+    else:
+        destination_index = (zero_index - k) % n
+
+    new_state = small_state
+
+    new_state[zero_index], new_state[destination_index] = new_state[destination_index], new_state[zero_index]
+
+    return State(state.large, tuple(new_state))
+    
+state = State([1,3,2,2,1],[1,1,2,0,2])
+print(apply_move(state,"L", 1))
+
+
+        
 
 # evaluation function, fuction for finding most optimal path using A* 
 '''
