@@ -67,8 +67,10 @@ def S_closed():
 
 '''
 description: for the application of the moves 
-paramaters: 
-return: 
+paramaters: state (State):- An instance of the State object
+            side (string) :- "R" to move right, "L" to move left
+            k (int) :- number of steps to move
+return: New instance of the State object with a new state
 '''
 def apply_move(state, side, k) :
     
@@ -84,12 +86,11 @@ def apply_move(state, side, k) :
 
     new_state = small_state
 
-    new_state[zero_index], new_state[destination_index] = new_state[destination_index], new_state[zero_index]
+    # swap zero with destination position
+    new_state[zero_index], new_state[destination_index] = new_state[destination_index], new_state[zero_index] 
 
     return State(state.large, tuple(new_state))
     
-state = State([1,3,2,2,1],[1,1,2,0,2])
-print(apply_move(state,"L", 1))
 
 
         
