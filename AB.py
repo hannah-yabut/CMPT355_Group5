@@ -57,9 +57,10 @@ def initial_state_input(n):
     return State(large, small) # saved as a tuple as in the class State 
 
 def initial_state_input_test():
-    large = "12234"
-    small = "11220"
+    large = [1, 2, 2, 1, 3]
+    small = [1, 1, 2, 2, 0]
     return State(large, small)
+
 
 # visited states 
 '''
@@ -114,8 +115,14 @@ def f():
 # heuristic funtion
 '''
 description:
-Counts value changes in the circular small disk configuration,
-starting after the blank (zero). Not adding after the final copy of a given number is observed.
+Gap-based heuristic with cyclic ordering awareness.
+Counts a gap when:
+- leaving a value before all n copies are seen, OR
+- the ordering jumps incorrectly in the 1..n cycle once observing the last of a set of numbers (eg. moving from the final 1, we expect a 2 etc.)
+
+The "first" flag stays True through the initial run (starting value).
+On the first switch away from that value, we do not count a gap if 0 is
+splitting the same value across the ends of the circular list.
 
 paramaters:
 - state : State object from moves.py
@@ -126,26 +133,36 @@ return:
 def h(state):
     obs = state.small
     T = len(obs)
+    n = max(obs)
 
-    n = max(obs)                 # number of disks per value
-    blank_pos = obs.index(0)     # anchor at the blank
+    zero_pos = obs.index(0)
+    before_zero = obs[(blank_pos - 1) % T]
 
-    prev_val = obs[(blank_pos + 1) % T] 
+    prev = obs[(blank_pos + 1) % T]   # first value after 0 (nonzero)
 
-    seen = {v: 0 for v in range(n + 1)} # keeps track of how many of each number is seen
-    seen[prev_val] += 1
+    seen = {v: 0 for v in range(n + 1)}
+    seen[prev] += 1
 
     h_val = 0
+    first = True  # stays True until we leave the starting run
 
-    for step in range(2, T + 1):
-        cur_val = obs[(blank_pos + step) % T]
-        # If theres a new number, and we know there should still be more of the previous number, increase h_val
-        if cur_val != prev_val:
-            if prev_val != 0 and seen[prev_val] < n:
-                h_val += 1
+    # stop before we wrap back onto 0, so cur_val is never 0
+    for step in range(2, T):
+        cur = obs[(zero_pos + step) % T]
 
-        seen[cur_val] += 1
-        prev_val = cur_val
+        if cur != prev:
+            # first boundary leaving the starting run:
+            # ignore if 0 is splitting the same value
+            if not (first and before_zero == prev):
+                if seen[prev] < n:
+                    h_val += 1
+                elif cur != ((prev % n) + 1):
+                    h_val += 1
+
+            first = False
+
+        seen[cur] += 1
+        prev = cur
 
     return h_val
 
