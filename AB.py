@@ -55,7 +55,12 @@ def initial_state_input(n):
         raise ValueError("Small disks must contain a 0.")
 
     return State(large, small) # saved as a tuple as in the class State 
-  
+
+def initial_state_input_test():
+    large = "12234"
+    small = "11220"
+    return State(large, small)
+
 # visited states 
 '''
 description: hash table/ heap implementation of visited nodes 
@@ -64,6 +69,30 @@ return:
 '''
 def S_closed():
     return 0 
+
+#currently expanding node
+'''
+Description: implementation for the current node, i dont really know if it fits any of the current so paste it into the appropriate spot (im sorry)
+parameters: heap
+return: lowest cost node in the frontier(hashtable)
+'''
+def curr(heap, frontier):
+    curr_node = heapq.heappop(heap)[2]
+    key = hash(curr_node)
+    state = frontier.get(key)
+    return state
+
+#frontier
+'''
+Description: store state (nodes) into frontier based on evaluation function and heuristic
+parameters: SearchNode(state), heap, hashtable
+return: none
+'''
+def into_frontier(heap, SearchNode, frontier):
+    heapq.heappush(heap, (SearchNode.h, SearchNode.g, SearchNode))
+    key = hash(SearchNode)
+    frontier.update({key: SearchNode})
+    return 0
 
 '''
 description: for the application of the moves 
@@ -137,13 +166,27 @@ paramaters:
 return: 
 '''
 def main():
-    n = receive_n()
-    state = initial_state_input(n)
+    #n = receive_n()
+    #state = initial_state_input(n)
+    state = initial_state_input_test()
+    state1 = State(state.large, "12120")
+    state2 = State(state.large, "12210")
+
+    sn = SearchNode(state, g=3, h=1)
+    sn1 = SearchNode(state1, g=2, h=1)
+    sn2 = SearchNode(state2, g=4, h=1)
+
 
     print("\nState read from input:")
     print(state) # uses __str__
     print("\nFull debug view:")
     print(state.debug_str())
+    heap = []
+    frontier = {}
+    into_frontier(heap, sn, frontier)
+    into_frontier(heap, sn1, frontier)
+    into_frontier(heap, sn2, frontier)
+    print(str(curr(heap,frontier).state))
 
 if __name__ == "__main__":
     main()
