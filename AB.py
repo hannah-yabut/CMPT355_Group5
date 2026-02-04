@@ -227,6 +227,32 @@ def astar_solve(start_state):
     return None
 
 
+'''
+description: for the application of the moves 
+paramaters: state (State):- An instance of the State object
+            side (string) :- "R" to move right, "L" to move left
+            k (int) :- number of steps to move
+return: New instance of the State object with a new state
+'''
+def apply_move(state, side, k) :
+    
+    small_state = list(state.small)
+    n = len(small_state)
+    
+    zero_index = small_state.index(0)
+
+    if side == "R":
+        destination_index = (zero_index + k) % n
+    else:
+        destination_index = (zero_index - k) % n
+
+    new_state = small_state
+
+    # swap zero with destination position
+    new_state[zero_index], new_state[destination_index] = new_state[destination_index], new_state[zero_index] 
+
+    return State(state.large, tuple(new_state))
+    
 
 
 # heuristic funtion
@@ -240,6 +266,7 @@ Counts a gap when:
 The "first" flag stays True through the initial run (starting value).
 On the first switch away from that value, we do not count a gap if 0 is
 splitting the same value across the ends of the circular list.
+(eg. 1011 would not count a gap in the 1's)
 
 paramaters:
 - state : State object from moves.py
