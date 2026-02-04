@@ -234,17 +234,26 @@ paramaters: state (State):- An instance of the State object
             k (int) :- number of steps to move
 return: New instance of the State object with a new state
 '''
-def apply_move() :
-    return 0 
+def apply_move(state, side, k) :
+    
+    small_state = list(state.small)
+    n = len(small_state)
+    
+    zero_index = small_state.index(0)
 
-# evaluation function, fuction for finding most optimal path using A* 
-'''
-description: 
-paramaters: 
-return: 
-'''
-def f():
-    return 0
+    if side == "R":
+        destination_index = (zero_index + k) % n
+    else:
+        destination_index = (zero_index - k) % n
+
+    new_state = small_state
+
+    # swap zero with destination position
+    new_state[zero_index], new_state[destination_index] = new_state[destination_index], new_state[zero_index] 
+
+    return State(state.large, tuple(new_state))
+    
+
 
 # heuristic funtion
 '''
@@ -324,6 +333,37 @@ def print_solution(goal_node):
         print(str(st))
 
 
+def print_formatted_solution(goal_node):
+
+    path = []
+    current_node = goal_node
+
+    while current_node:
+        path.insert(0,current_node)
+        current_node = current_node.parent
+    
+    arrow = ">"
+    print("\n")
+    for i in range(len(path) - 1):
+        current_node = path[i]
+
+        children = ""
+        for move in get_legal_moves(current_node.state):
+            current_node_children = do_move(current_node.state, move)
+            
+            if current_node_children is not None:
+                children += f"  {str(current_node_children)}"
+            
+        print(f"{arrow}node: {current_node.state}")
+        print(f"{arrow}children: {children} \n")
+
+        arrow = "----" + arrow
+
+    print(f"{arrow}solution node:{path[-1].state}")
+
+
+
+
 
 '''
 description: calls helper functions and prints the resulting solution of the puzzle 
@@ -335,7 +375,7 @@ def main():
     start_state = initial_state_input(n)
 
     goal_node = astar_solve(start_state)
-    print_solution(goal_node)
+    print_formatted_solution(goal_node)
 
 
 if __name__ == "__main__":
