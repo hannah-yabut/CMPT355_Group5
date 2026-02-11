@@ -13,22 +13,21 @@ paramaters: None
 return: n (number of tiles)
 '''
 def receive_n():
-    if len(sys.argv) != 2: 
+    if len(sys.argv) != 2:
         print("Usage: ./AB <n>")
         sys.exit(1)
 
-    try: 
+    try:
         n = int(sys.argv[1])
-    except ValueError: 
+    except ValueError:
         print("Error: n must be an integer.")
-        sys.exit(1) 
+        sys.exit(1)
 
-    if n <= 0: 
+    if n <= 0:
         print("Error: n must be positive")
-        sys.exit(1) # exit as an error 
+        sys.exit(1)  # exit as an error
 
-    return n 
-
+    return n
 
 
 '''
@@ -36,82 +35,59 @@ description: Receives a standard input from keyboard about the initial state of 
 paramaters: 
 return: State(large, small) , using the State class from moves.py 
 '''
-def initial_state_input(n): 
-    line1 = sys.stdin.readline() # changed to stdin for redirected input as shown in lab 
+def initial_state_input(n):
+    line1 = sys.stdin.readline()  # changed to stdin for redirected input as shown in lab
     line2 = sys.stdin.readline()
 
     if not line1 or not line2:
         raise ValueError("Expected two lines of input for large and small disk states.")
 
-    large = list(map(int, line1.split())) # list for large disk configuration 
-    small = list(map(int, line2.split())) # list for small disk configuration 
+    large = list(map(int, line1.split()))  # list for large disk configuration
+    small = list(map(int, line2.split()))  # list for small disk configuration
 
-    if len(large) != n or len(small) != n: # error checking 
+    if len(large) != n or len(small) != n:  # error checking
         raise ValueError(f"Expected {n} integers per line.")
 
     if 0 not in small:
         raise ValueError("Small disks must contain a 0.")
 
-    return State(large, small) # saved as a tuple as in the class State 
+    return State(large, small)  # saved as a tuple as in the class State
 
+# Just for testing
 def initial_state_input_test():
     large = [1, 2, 2, 1, 3]
     small = [1, 1, 2, 2, 0]
     return State(large, small)
 
 
-def step_once(i, side, T):
-    """Take one step around the circle."""
-    if side == "R":
-        return (i + 1) % T
-    return (i - 1) % T
-
-
-def kth_disk_pos(state, k, side):
-    """
-    Starting from the blank (0), walk in direction side and return the index
-    of the k-th non-zero disk you hit.
-
-    Returns None if there aren't k disks in that direction.
-    """
-    obs = state.small
-    T = len(obs)
-
-    blank = obs.index(0)
-    idx = blank
-    seen = 0
-
-    # there are at most T-1 non-zero disks total
-    for _ in range(T - 1):
-        idx = step_once(idx, side, T)
-        if obs[idx] != 0:
-            seen += 1
-            if seen == k:
-                return idx
-
-    return None
-
-
 def do_move(state, move):
     """
-    Apply Move(k, side):
+    Apply Move(k, side) under the AB rules:
 
-      - find the k-th disk from the blank in the chosen direction
-      - swap it with the blank (0)
+      - The blank (0) can swap with:
+          * its adjacent disk (k = 1), OR
+          * the disk k positions to the left/right,
+            where k is the number shown on the uncovered large disk.
 
+    The list is circular.
     Returns:
-      - new State if legal
-      - None if illegal
+      - new State
     """
     obs = list(state.small)
+    T = len(obs)
     blank = obs.index(0)
 
-    src = kth_disk_pos(state, move.k, move.side)
-    if src is None:
-        return None
+    k = move.k
+    side = move.side
+
+    if side == "R":
+        src = (blank + k) % T
+    else:
+        src = (blank - k) % T
 
     obs[blank], obs[src] = obs[src], obs[blank]
     return State(state.large, obs)
+
 
 
 def get_legal_moves(state):
@@ -120,7 +96,7 @@ def get_legal_moves(state):
 
     Move(1, L/R) and Move(K, L/R)
 
-    We filter out moves that don't exist in the current configuration.
+    We allow do_move() to decide legality (returns None if impossible).
     """
     obs = state.small
     blank = obs.index(0)
@@ -131,9 +107,7 @@ def get_legal_moves(state):
     moves = []
     for k in candidates:
         for side in ("L", "R"):
-            mv = Move(k, side)
-            if kth_disk_pos(state, k, side) is not None:
-                moves.append(mv)
+            moves.append(Move(k, side))
 
     return moves
 
@@ -205,7 +179,7 @@ def astar_solve(start_state):
         # checks for if a cheaper path was found after this was pushed
         if best_g.get(node.state, float("inf")) != node.g:
             continue
-        
+
         # checks for goal
         if goal_reached(node.state, goal_tuple):
             return node
@@ -225,34 +199,6 @@ def astar_solve(start_state):
                 heapq.heappush(heap, (child.f, -child.g, next(order), child))
 
     return None
-
-
-'''
-description: for the application of the moves 
-paramaters: state (State):- An instance of the State object
-            side (string) :- "R" to move right, "L" to move left
-            k (int) :- number of steps to move
-return: New instance of the State object with a new state
-'''
-def apply_move(state, side, k) :
-    
-    small_state = list(state.small)
-    n = len(small_state)
-    
-    zero_index = small_state.index(0)
-
-    if side == "R":
-        destination_index = (zero_index + k) % n
-    else:
-        destination_index = (zero_index - k) % n
-
-    new_state = small_state
-
-    # swap zero with destination position
-    new_state[zero_index], new_state[destination_index] = new_state[destination_index], new_state[zero_index] 
-
-    return State(state.large, tuple(new_state))
-    
 
 
 # heuristic funtion
@@ -332,16 +278,16 @@ def print_solution(goal_node):
     for st in path_states(goal_node):
         print(str(st))
 
-
+# For the demo
 def print_formatted_solution(goal_node):
 
     path = []
     current_node = goal_node
 
     while current_node:
-        path.insert(0,current_node)
+        path.insert(0, current_node)
         current_node = current_node.parent
-    
+
     arrow = ">"
     print("\n")
     for i in range(len(path) - 1):
@@ -350,19 +296,16 @@ def print_formatted_solution(goal_node):
         children = ""
         for move in get_legal_moves(current_node.state):
             current_node_children = do_move(current_node.state, move)
-            
+
             if current_node_children is not None:
                 children += f"  {str(current_node_children)}"
-            
+
         print(f"{arrow}node: {current_node.state}")
         print(f"{arrow}children: {children} \n")
 
         arrow = "----" + arrow
 
     print(f"{arrow}solution node:{path[-1].state}")
-
-
-
 
 
 '''
@@ -375,8 +318,7 @@ def main():
     start_state = initial_state_input(n)
 
     goal_node = astar_solve(start_state)
-    print_formatted_solution(goal_node)
-
+    print_solution(goal_node)
 
 if __name__ == "__main__":
     main()
