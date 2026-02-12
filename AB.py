@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from moves import State, Move, SearchNode, LinkedList, ListNode
+from moves import State, Move, SearchNode
 import heapq  # priority queue for A*
 from itertools import count  # stable tie-breaking for the heap
 import sys  # read command-line args + stdin

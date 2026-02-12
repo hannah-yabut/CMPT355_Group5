@@ -10,6 +10,7 @@ all: $(TARGET)
 
 
 $(TARGET): $(MAIN) $(MODULES)
+	cp $(MAIN) $(TARGET)
 	chmod +x $(TARGET)
 
 lint:
@@ -18,3 +19,7 @@ lint:
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
+	rm AB
+
+tar:
+	tar -czf ../cmpt355_group5_project1.zip AB.py Makefile moves.py readme.txt
