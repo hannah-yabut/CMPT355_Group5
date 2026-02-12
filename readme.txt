@@ -84,8 +84,8 @@ Search Algorithm
 
 - Each state represents a configuration of the small disks.
 
-- States are prioritized using f(n) = g(n) + h(n), where g is the move      count and h is a gap-based heuristic.
+- States are prioritized using f(n) = g(n) + h(n), where g is the move count and h is a gap-based heuristic.
 
-- A priority queue selects the lowest-cost state, with tie-breaking         favoring deeper nodes.
+- A priority queue selects the lowest-cost state, with tie-breaking favoring deeper nodes.
 
-- Visited states are stored to avoid revisiting configurations and ensure   optimality.  
+- Visited states are stored to avoid revisiting configurations and ensure optimality.  
